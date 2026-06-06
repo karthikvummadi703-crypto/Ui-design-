@@ -1,0 +1,6 @@
+{
+  "name": "Celestial Orbit Space",
+  "description": "An interactive multi-axis gravity visualizer and roadmap navigator with an elegant portal gateway.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
