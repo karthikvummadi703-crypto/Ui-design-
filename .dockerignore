@@ -1,0 +1,11 @@
+# Keep build image clean of local modules and build outputs
+node_modules
+npm-debug.log
+dist
+.env
+.git
+.github
+.gitignore
+.dockerignore
+Dockerfile
+README.md

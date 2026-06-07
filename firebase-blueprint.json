@@ -1,0 +1,139 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Information stored for each civic citizen",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "city": { "type": "string" },
+        "state": { "type": "string" },
+        "language": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "lastLoginAt": { "type": "string", "format": "date-time" },
+        "issuesViewed": { "type": "integer" },
+        "aiSummariesGenerated": { "type": "integer" },
+        "pollsParticipated": { "type": "integer" },
+        "reportsSubmitted": { "type": "integer" },
+        "civicActionsCompleted": { "type": "integer" }
+      },
+      "required": ["uid", "name", "email", "city", "state", "language"]
+    },
+    "Issue": {
+      "title": "Issue",
+      "description": "Civic issues for citizen overview",
+      "type": "object",
+      "properties": {
+        "issueId": { "type": "string" },
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "fullText": { "type": "string" },
+        "viewsCount": { "type": "integer" },
+        "summariesCount": { "type": "integer" },
+        "region": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["issueId", "title", "category", "description", "fullText"]
+    },
+    "Poll": {
+      "title": "Poll",
+      "description": "District consensus polls regarding civic matters",
+      "type": "object",
+      "properties": {
+        "pollId": { "type": "string" },
+        "question": { "type": "string" },
+        "options": {
+          "type": "array",
+          "description": "List of options and counts",
+          "items": { "type": "string" }
+        },
+        "votes": {
+          "type": "object",
+          "description": "Mapping from option index to count"
+        },
+        "totalVotes": { "type": "integer" },
+        "voterIds": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["pollId", "question", "options", "votes", "totalVotes", "voterIds"]
+    },
+    "Report": {
+      "title": "Report",
+      "description": "Citizen filed incident report",
+      "type": "object",
+      "properties": {
+        "reportId": { "type": "string" },
+        "reporterId": { "type": "string" },
+        "reporterName": { "type": "string" },
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "status": { "type": "string" },
+        "adminResponse": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["reportId", "reporterId", "title", "category", "description", "status"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "Inbox notifications for citizens",
+      "type": "object",
+      "properties": {
+        "notificationId": { "type": "string" },
+        "userId": { "type": "string" },
+        "message": { "type": "string" },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["notificationId", "userId", "message", "read"]
+    },
+    "Analytics": {
+      "title": "AnalyticsEvent",
+      "description": "Google Analytics-styled internal event tracing",
+      "type": "object",
+      "properties": {
+        "eventId": { "type": "string" },
+        "userId": { "type": "string" },
+        "eventName": { "type": "string" },
+        "parameters": { "type": "object" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["eventId", "eventName", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Citizen records directory"
+    },
+    "/issues/{issueId}": {
+      "schema": "Issue",
+      "description": "Civic issues list"
+    },
+    "/polls/{pollId}": {
+      "schema": "Poll",
+      "description": "Governance opinion poll consensus documents"
+    },
+    "/reports/{reportId}": {
+      "schema": "Report",
+      "description": "Incident reports field files"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "System-to-citizen broadcast signals"
+    },
+    "/analytics/{eventId}": {
+      "schema": "Analytics",
+      "description": "System instrumentation traces"
+    }
+  }
+}

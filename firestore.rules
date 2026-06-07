@@ -1,0 +1,159 @@
+rules_version = '2';
+service cloud_firestore {
+  match /databases/{database}/documents {
+    
+    // 1. Global Safety Net Catch-All
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- REUSABLE SECURITY PRIMITIVES ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.email == 'k33041744@gmail.com' && request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- VALIDATION BLUEPRINTS (ANTI-UPDATE-GAP) ---
+    
+    // User Validator
+    function isValidUser(data) {
+      return data.uid is string && data.uid.size() <= 128 &&
+             data.name is string && data.name.size() <= 100 &&
+             data.email is string && data.email.size() <= 128 &&
+             data.city is string && data.city.size() <= 100 &&
+             data.state is string && data.state.size() <= 100 &&
+             data.language is string && data.language.size() <= 50;
+    }
+
+    // Issue Validator
+    function isValidIssue(data) {
+      return data.issueId is string && data.issueId.size() <= 128 &&
+             data.title is string && data.title.size() <= 200 &&
+             data.category is string && data.category.size() <= 100 &&
+             data.description is string && data.description.size() <= 1000 &&
+             data.fullText is string && data.fullText.size() <= 10000;
+    }
+
+    // Poll Validator
+    function isValidPoll(data) {
+      return data.pollId is string && data.pollId.size() <= 128 &&
+             data.question is string && data.question.size() <= 500 &&
+             data.options is list && data.options.size() <= 10 &&
+             data.voterIds is list && data.voterIds.size() <= 10000;
+    }
+
+    // Report Validator
+    function isValidReport(data) {
+      return data.reportId is string && data.reportId.size() <= 128 &&
+             data.reporterId is string && data.reporterId.size() <= 128 &&
+             data.title is string && data.title.size() <= 200 &&
+             data.category is string && data.category.size() <= 100 &&
+             data.description is string && data.description.size() <= 2000 &&
+             data.status is string && (data.status == 'submitted' || data.status == 'reviewing' || data.status == 'resolved');
+    }
+
+    // Notification Validator
+    function isValidNotification(data) {
+      return data.notificationId is string && data.notificationId.size() <= 128 &&
+             data.userId is string && data.userId.size() <= 128 &&
+             data.message is string && data.message.size() <= 500 &&
+             data.read is bool;
+    }
+
+    // Analytics Validator
+    function isValidAnalytics(data) {
+      return data.eventId is string && data.eventId.size() <= 128 &&
+             data.eventName is string && data.eventName.size() <= 100;
+    }
+
+    // --- COLLECTION RULES ---
+
+    // USERS COLLECTION
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin(); // Users should not blanket read other users' documents
+      allow create: if isOwner(userId) && isValidId(userId) && isValidUser(incoming()) && incoming().createdAt == request.time;
+      allow update: if (isOwner(userId) && isValidUser(incoming()) && incoming().createdAt == existing().createdAt) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ISSUES COLLECTION
+    match /issues/{issueId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isAdmin() && isValidId(issueId) && isValidIssue(incoming());
+      allow update: if isSignedIn() && (
+        // Allow citizen increments (issuesViewed / viewsCount tracking)
+        (incoming().diff(existing()).affectedKeys().hasOnly(['viewsCount', 'summariesCount']) && incoming().viewsCount is int) || isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // POLLS COLLECTION
+    match /polls/{pollId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isAdmin() && isValidId(pollId) && isValidPoll(incoming());
+      allow update: if isSignedIn() && (
+        // Users voting represents atomic voterIds list append and option vote mapping update
+        (incoming().diff(existing()).affectedKeys().hasAll(['voterIds', 'votes', 'totalVotes']) && 
+         incoming().diff(existing()).affectedKeys().hasOnly(['voterIds', 'votes', 'totalVotes']) &&
+         incoming().totalVotes is int && request.auth.uid in incoming().voterIds) || isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // REPORTS COLLECTION
+    match /reports/{reportId} {
+      allow get: if isSignedIn() && (resource.data.reporterId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn(); // We want citizens to see active district issues/reports! Secure by checking query ownership or list
+      allow create: if isSignedIn() && isValidId(reportId) && isValidReport(incoming()) && incoming().reporterId == request.auth.uid && incoming().createdAt == request.time;
+      allow update: if isSignedIn() && (
+        // Owners can edit description before review, admins can update state and comment
+        (resource.data.reporterId == request.auth.uid && existing().status == 'submitted' && 
+         incoming().diff(existing()).affectedKeys().hasOnly(['title', 'description', 'updatedAt']) && incoming().updatedAt == request.time) ||
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // NOTIFICATIONS COLLECTION
+    match /notifications/{notificationId} {
+      allow get, list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isAdmin();
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid && incoming().diff(existing()).affectedKeys().hasOnly(['read']);
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // ANALYTICS COLLECTION
+    match /analytics/{eventId} {
+      allow get: if isAdmin();
+      allow list: if isAdmin();
+      allow create: if isSignedIn() && isValidId(eventId) && isValidAnalytics(incoming()) && incoming().timestamp == request.time;
+      allow update, delete: if false; // Analytics are immutable
+    }
+  }
+}

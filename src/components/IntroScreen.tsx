@@ -37,7 +37,7 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onEnterPortal, accentC
       >
         <Compass className="w-4 h-4 text-indigo-400 rotate-45" />
         <span className="font-mono text-[10px] uppercase tracking-widest text-slate-400">
-          SYSTEM_VERSION :: V2.4.0
+          CIVICPULSE AI :: LOCAL CITIZEN SERVICES CODES ACTIVE
         </span>
       </motion.div>
 
@@ -55,7 +55,7 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onEnterPortal, accentC
           transition={{ delay: 0.3, type: "spring", stiffness: 80 }}
           className="p-3 bg-slate-900 border border-slate-800 rounded-2xl mb-6 shadow-md relative"
         >
-          <Sparkles className="w-7 h-7 text-indigo-400 animate-pulse" />
+          <Sparkles className="w-7 h-7 text-indigo-405 animate-pulse" />
         </motion.div>
 
         <motion.h1
@@ -64,7 +64,7 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onEnterPortal, accentC
           transition={{ delay: 0.4, duration: 0.7 }}
           className="font-sans font-extrabold text-4xl sm:text-5xl md:text-6xl text-slate-100 tracking-tight leading-tight uppercase font-medium"
         >
-          Celestial Orbit <br />
+          CivicPulse AI <br />
           <span 
             className="bg-clip-text text-transparent bg-gradient-to-r transition-all duration-1000"
             style={{ 
@@ -73,7 +73,7 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onEnterPortal, accentC
               WebkitTextFillColor: "transparent"
             }}
           >
-            Space Environment
+            Digital Governance Hub
           </span>
         </motion.h1>
 
@@ -83,7 +83,7 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onEnterPortal, accentC
           transition={{ delay: 0.5, duration: 0.7 }}
           className="text-slate-300 text-sm sm:text-base leading-relaxed mt-6 max-w-lg font-sans font-normal"
         >
-          De-orbit into an interactive multi-axis gravity visualizer and roadmap navigator. Sync your telemetry, explore active vector iterations, and establish real-time node links.
+          Empowering citizens to understand issues, engage with governance, and take meaningful civic action through AI. Track civic health ratios, verify proposals, and shape dynamic resolutions.
         </motion.p>
 
         <motion.div
@@ -98,7 +98,7 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onEnterPortal, accentC
             className="flex items-center gap-3 px-8 py-4 bg-indigo-650 text-white font-sans font-medium text-sm rounded-full cursor-pointer hover:bg-indigo-600 shadow-lg shadow-indigo-600/10 transition-all duration-300 md:hover:scale-105 active:scale-95 group relative overflow-hidden"
           >
             <Terminal className="w-4 h-4 text-white" />
-            ENTER SERVICE PORTAL
+            ENTER CITIZEN PORTAL
             <ArrowRight className="w-4 h-4 text-white transition-transform duration-300 group-hover:translate-x-1" />
           </button>
         </motion.div>
@@ -114,15 +114,15 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onEnterPortal, accentC
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            SECURE LINK ESTABLISHED
+            GOVERNMENT SECURE HANDSHAKE LINK
           </span>
           <span className="text-slate-800">|</span>
-          <span>LATENCY: 9ms</span>
+          <span>LATENCY: 12ms</span>
         </div>
         <div className="flex items-center gap-2">
-          <span>PORTAL CODES ACTIVE</span>
+          <span>SECURE PUBLIC PORTAL GATEWAY</span>
           <span className="px-2 py-0.5 rounded bg-slate-900/80 text-indigo-300 border border-slate-800">
-            TLS 1.3
+            FIPS 140-3
           </span>
         </div>
       </motion.div>
